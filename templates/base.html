@@ -10,8 +10,12 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+      .theme-transition { transition: background-color 0.3s ease, color 0.3s ease; }
+    </style>
   </head>
   <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
@@ -30,14 +34,55 @@
             <li class="nav-item"><a class="nav-link" href="/railfence">Rail Fence</a></li>
             <li class="nav-item"><a class="nav-link" href="/transposition">Transposition</a></li>
           </ul>
-          <button id="theme-toggle" class="btn btn-outline-secondary btn-sm" type="button">Dark Mode</button>
+          <div class="d-flex gap-2 align-items-center">
+            <button class="btn btn-outline-primary btn-sm position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#historyOffcanvas">
+              <i class="bi bi-clock-history"></i> History
+              {% if session.get('history') %}
+              <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                <span class="visually-hidden">New alerts</span>
+              </span>
+              {% endif %}
+            </button>
+            <button id="theme-toggle" class="btn btn-outline-secondary btn-sm rounded-circle p-2" type="button" aria-label="Toggle Theme">
+              <i class="bi bi-moon-stars-fill" id="theme-icon"></i>
+            </button>
+          </div>
         </div>
       </div>
     </nav>
 
-    <main class="container py-4">
+    <main class="container py-4 theme-transition">
       {% block content %}{% endblock %}
     </main>
+
+    <!-- History Offcanvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="historyOffcanvas" aria-labelledby="historyOffcanvasLabel">
+      <div class="offcanvas-header bg-primary text-white">
+        <h5 class="offcanvas-title" id="historyOffcanvasLabel"><i class="bi bi-clock-history me-2"></i>Aktivitas Terakhir</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        {% if session.get('history') %}
+          <div class="list-group list-group-flush">
+            {% for item in session.history %}
+            <div class="list-group-item list-group-item-action py-3">
+              <div class="d-flex w-100 justify-content-between mb-1">
+                <h6 class="mb-1 fw-bold text-primary">{{ item.algorithm }}</h6>
+              </div>
+              <p class="mb-1 small"><strong>In:</strong> {{ item.input }}</p>
+              <p class="mb-1 small"><strong>Key:</strong> <span class="badge bg-secondary">{{ item.key }}</span></p>
+              <p class="mb-0 small text-success"><strong>Out:</strong> {{ item.result }}</p>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center text-muted mt-5">
+            <i class="bi bi-inbox fs-1"></i>
+            <p class="mt-3">Belum ada aktivitas enkripsi.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -47,16 +92,32 @@
     <script>
       const htmlElement = document.documentElement;
       const toggleButton = document.getElementById("theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
+      
+      const updateThemeUI = (theme) => {
+        htmlElement.setAttribute("data-bs-theme", theme);
+        if (theme === "dark") {
+          themeIcon.classList.remove("bi-moon-stars-fill");
+          themeIcon.classList.add("bi-sun-fill");
+          toggleButton.classList.replace("btn-outline-secondary", "btn-outline-light");
+        } else {
+          themeIcon.classList.remove("bi-sun-fill");
+          themeIcon.classList.add("bi-moon-stars-fill");
+          toggleButton.classList.replace("btn-outline-light", "btn-outline-secondary");
+        }
+      };
+
       const savedTheme = localStorage.getItem("theme") || "light";
-      htmlElement.setAttribute("data-bs-theme", savedTheme);
-      toggleButton.textContent = savedTheme === "light" ? "Dark Mode" : "Light Mode";
+      updateThemeUI(savedTheme);
 
       toggleButton.addEventListener("click", () => {
         const currentTheme = htmlElement.getAttribute("data-bs-theme");
         const nextTheme = currentTheme === "light" ? "dark" : "light";
-        htmlElement.setAttribute("data-bs-theme", nextTheme);
         localStorage.setItem("theme", nextTheme);
-        toggleButton.textContent = nextTheme === "light" ? "Dark Mode" : "Light Mode";
+        
+        // Add class to body for transition smoothly
+        document.body.classList.add("theme-transition");
+        updateThemeUI(nextTheme);
       });
     </script>
   </body>

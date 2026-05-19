@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Playfair Cipher - Cipher Lab{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-5">
+    <div class="card shadow-sm mb-4 border-0">
+      <div class="card-header bg-primary bg-gradient text-white">
+        <h5 class="card-title mb-0"><i class="bi bi-grid-3x3-gap-fill me-2"></i>Playfair Cipher Encryption</h5>
+      </div>
+      <div class="card-body bg-body">
+        {% if error_message %}
+        <div class="alert alert-danger" role="alert">
+          {{ error_message }}
+        </div>
+        {% endif %}
+        <form method="post">
+          <div class="mb-3">
+            <label for="input_text" class="form-label fw-semibold">Teks (Plaintext)</label>
+            <textarea class="form-control shadow-none" id="input_text" name="input_text" rows="3" placeholder="Masukkan teks..." required>{{ input_text }}</textarea>
+          </div>
+          <div class="mb-4">
+            <label for="key" class="form-label fw-semibold">Kunci (Kata Sandi)</label>
+            <input type="text" class="form-control shadow-none" id="key" name="key" value="{{ key }}" placeholder="Contoh: SAPU" required>
+            <div class="form-text">Huruf 'J' akan digabung dengan 'I'.</div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 shadow-sm py-2 fw-bold">Enkripsi Data</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-7">
+    {% if result_text %}
+    <div class="card shadow-sm mb-4 border-0">
+      <div class="card-header bg-success bg-gradient text-white">
+        <h5 class="card-title mb-0">Hasil Enkripsi (Ciphertext)</h5>
+      </div>
+      <div class="card-body bg-body text-center">
+        <p class="fs-3 text-break font-monospace fw-bold mb-0 text-success">{{ result_text }}</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-warning bg-gradient text-dark">
+            <h5 class="card-title mb-0 fw-bold">Matriks Kunci 5x5</h5>
+          </div>
+          <div class="card-body d-flex justify-content-center align-items-center bg-body">
+            <table class="table table-bordered text-center font-monospace fs-5 shadow-sm m-0" style="table-layout: fixed; width: 100%;">
+              <tbody>
+                {% for row in matrix %}
+                <tr>
+                  {% for cell in row %}
+                  <td class="p-2 {% if cell == 'I' %}bg-light text-primary fw-bold{% endif %}">{{ cell }}</td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-4">
+         <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-info bg-gradient text-white">
+            <h5 class="card-title mb-0 fw-bold">Aturan Digraphs</h5>
+          </div>
+          <div class="card-body bg-body p-0">
+            <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+              <table class="table table-hover text-center align-middle m-0">
+                <thead class="table-light sticky-top">
+                  <tr>
+                    <th>Blok</th>
+                    <th>Cipher</th>
+                    <th>Aturan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for step in steps %}
+                  <tr>
+                    <td><span class="badge bg-secondary fs-6">{{ step.digraph }}</span></td>
+                    <td><span class="badge bg-primary fs-6">{{ step.encrypted }}</span></td>
+                    <td class="text-start small">{{ step.rule }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
