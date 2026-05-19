@@ -1,12 +1,459 @@
 {% extends "base.html" %}
-{% block title %}Home - Cipher Lab{% endblock %}
+{% block title %}Cipher Lab - All in One{% endblock %}
 {% block content %}
-<div class="p-4 p-md-5 mb-4 rounded bg-body-tertiary">
-  <div class="col-lg-8 px-0">
-    <h1 class="display-6 fw-bold">Fondasi Cipher Playground</h1>
-    <p class="lead mb-0">
-      Pilih algoritma dari navbar untuk mencoba proses enkripsi beserta langkah perhitungannya.
-    </p>
-  </div>
+<div class="hero-box">
+  <h1 style="font-size: 2.5rem; margin-bottom: 15px;">Fondasi Cipher Playground 🚀</h1>
+  <p style="font-size: 1.1rem; opacity: 0.9;">
+    Pilih algoritma dari navbar untuk langsung menggulir (scroll) ke metode yang diinginkan.
+  </p>
 </div>
+
+<!-- ================= CAESAR CIPHER ================= -->
+<section id="caesar">
+  <div class="row">
+    <div class="col-5">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-primary"><i class="bi bi-shield-lock-fill"></i> Caesar Cipher</h5>
+        </div>
+        <form method="post">
+          <input type="hidden" name="action" value="caesar">
+          <div class="form-group">
+            <label for="c_input_text">Teks (Plaintext)</label>
+            <textarea id="c_input_text" name="c_input_text" rows="4" required>{{ c_input_text }}</textarea>
+          </div>
+          <div class="form-group">
+            <label for="c_shift">Nilai Pergeseran (Shift)</label>
+            <input type="number" id="c_shift" name="c_shift" value="{{ c_shift }}" required>
+          </div>
+          <button type="submit" class="btn-primary">Enkripsi Data</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-7">
+      {% if c_result_text %}
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-success"><i class="bi bi-check-circle-fill"></i> Hasil Enkripsi Caesar</h5>
+        </div>
+        <p class="fs-large monospace" style="word-break: break-all; font-weight: bold; color: var(--success-color);">
+          {{ c_result_text }}
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-warning"><i class="bi bi-journal-code"></i> Proses Edukatif</h5>
+        </div>
+        <p style="margin-bottom: 15px;">Rumus: <span class="monospace text-primary">C = (P + shift) mod 26</span></p>
+        
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Index</th>
+                <th>Karakter</th>
+                <th>Proses Matematis</th>
+                <th>Hasil</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for step in c_steps %}
+              <tr>
+                <td>{{ step.index }}</td>
+                <td><strong>{{ step.original }}</strong></td>
+                <td><span class="monospace">{{ step.formula }}</span></td>
+                <td><strong class="text-primary">{{ step.result }}</strong></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= VIGENERE CIPHER ================= -->
+<section id="vigenere">
+  <div class="row">
+    <div class="col-5">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-primary"><i class="bi bi-key-fill"></i> Vigenère Cipher</h5>
+        </div>
+        
+        {% if v_error %}
+        <div class="alert alert-danger">{{ v_error }}</div>
+        {% endif %}
+
+        <form method="post">
+          <input type="hidden" name="action" value="vigenere">
+          <div class="form-group">
+            <label for="v_input_text">Teks (Plaintext)</label>
+            <textarea id="v_input_text" name="v_input_text" rows="4" required>{{ v_input_text }}</textarea>
+          </div>
+          <div class="form-group">
+            <label for="v_key">Kunci (Kata Sandi)</label>
+            <input type="text" id="v_key" name="v_key" value="{{ v_key }}" required>
+          </div>
+          <button type="submit" class="btn-primary">Enkripsi Data</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-7">
+      {% if v_result_text %}
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-success"><i class="bi bi-check-circle-fill"></i> Hasil Enkripsi Vigenère</h5>
+        </div>
+        <p class="fs-large monospace" style="word-break: break-all; font-weight: bold; color: var(--success-color);">
+          {{ v_result_text }}
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-warning"><i class="bi bi-journal-code"></i> Proses Edukatif</h5>
+        </div>
+        <p style="margin-bottom: 15px;">Rumus: <span class="monospace text-primary">C = (P + K) mod 26</span></p>
+        
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Plainteks</th>
+                <th>Kunci</th>
+                <th>Proses Matematis</th>
+                <th>Cipherteks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for step in v_steps %}
+              <tr>
+                <td><strong>{{ step.plain_char }}</strong></td>
+                <td>{{ step.key_char }}</td>
+                <td><span class="monospace">{{ step.formula }}</span></td>
+                <td><strong class="text-primary">{{ step.result }}</strong></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= AFFINE CIPHER ================= -->
+<section id="affine">
+  <div class="row">
+    <div class="col-5">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-primary"><i class="bi bi-calculator-fill"></i> Affine Cipher</h5>
+        </div>
+        
+        {% if a_error %}
+        <div class="alert alert-danger">{{ a_error }}</div>
+        {% endif %}
+
+        <form method="post">
+          <input type="hidden" name="action" value="affine">
+          <div class="form-group">
+            <label for="a_input_text">Teks (Plaintext)</label>
+            <textarea id="a_input_text" name="a_input_text" rows="3" required>{{ a_input_text }}</textarea>
+          </div>
+          <div class="row" style="gap: 15px; margin-bottom: 20px;">
+            <div class="col-6">
+              <label for="a_key_a">Kunci a (Multiplier)</label>
+              <input type="number" id="a_key_a" name="a_key_a" value="{{ a_key_a }}" required>
+            </div>
+            <div class="col-6">
+              <label for="a_key_b">Kunci b (Shift)</label>
+              <input type="number" id="a_key_b" name="a_key_b" value="{{ a_key_b }}" required>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary">Enkripsi Data</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-7">
+      {% if a_result_text %}
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-success"><i class="bi bi-check-circle-fill"></i> Hasil Enkripsi Affine</h5>
+        </div>
+        <p class="fs-large monospace" style="word-break: break-all; font-weight: bold; color: var(--success-color);">
+          {{ a_result_text }}
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-warning"><i class="bi bi-journal-code"></i> Proses Perhitungan (Edukatif)</h5>
+        </div>
+        <p style="margin-bottom: 10px;">Rumus: \( C = (a \cdot P + b) \pmod{26} \)</p>
+        <p style="margin-bottom: 20px;">Kunci yang digunakan: \( a = {{ a_key_a }}, b = {{ a_key_b }} \)</p>
+        
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Karakter</th>
+                <th>Nilai P</th>
+                <th>Proses Matematis</th>
+                <th>Nilai C</th>
+                <th>Cipherteks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for step in a_steps %}
+                {% if step.is_alpha %}
+                <tr>
+                  <td><strong>{{ step.char }}</strong></td>
+                  <td>{{ step.p }}</td>
+                  <td>\( {{ step.formula }} \)</td>
+                  <td>{{ step.c }}</td>
+                  <td><strong class="text-primary">{{ step.c_char }}</strong></td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td><strong>{{ step.char }}</strong></td>
+                  <td colspan="3" style="text-align: center; color: var(--secondary-text);">Bukan huruf (diabaikan)</td>
+                  <td><strong>{{ step.char }}</strong></td>
+                </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= HILL CIPHER ================= -->
+<section id="hill">
+  <div class="row">
+    <div class="col-5">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-primary"><i class="bi bi-grid-3x3"></i> Hill Cipher</h5>
+        </div>
+        
+        {% if h_error %}
+        <div class="alert alert-danger">{{ h_error }}</div>
+        {% endif %}
+
+        <form method="post" id="hillForm">
+          <input type="hidden" name="action" value="hill">
+          <div class="form-group">
+            <label for="h_input_text">Teks (Plaintext)</label>
+            <textarea id="h_input_text" name="h_input_text" rows="3" required>{{ h_input_text }}</textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="h_matrix_size">Ukuran Matriks Kunci</label>
+            <select id="h_matrix_size" name="h_matrix_size" onchange="updateMatrixInput()">
+              <option value="2" {% if h_matrix_size == 2 %}selected{% endif %}>2 x 2</option>
+              <option value="3" {% if h_matrix_size == 3 %}selected{% endif %}>3 x 3</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Input Matriks Kunci</label>
+            <div id="matrix_container" class="d-flex" style="flex-direction: column; align-items: center; gap: 10px;">
+                <!-- Dynamically filled by JS -->
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-primary mt-4">Enkripsi Data</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-7">
+      {% if h_result_text %}
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-success"><i class="bi bi-check-circle-fill"></i> Hasil Enkripsi Hill</h5>
+        </div>
+        <p class="fs-large monospace" style="word-break: break-all; font-weight: bold; color: var(--success-color);">
+          {{ h_result_text }}
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-warning"><i class="bi bi-journal-code"></i> Proses Perkalian Matriks (Edukatif)</h5>
+        </div>
+        <div>
+          {% for step in h_steps %}
+          <div class="accordion-item">
+            <div class="accordion-header">
+              <span>Blok {{ loop.index }}: <strong>{{ step.block }}</strong> ➔ <strong>{{ step.block_result }}</strong></span>
+              <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="accordion-body {% if loop.first %}show{% endif %}">
+              <div style="overflow-x: auto;">
+                $$ {{ step.formula }} $$
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLAYFAIR CIPHER ================= -->
+<section id="playfair">
+  <div class="row">
+    <div class="col-5">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-primary"><i class="bi bi-grid-3x3-gap-fill"></i> Playfair Cipher</h5>
+        </div>
+        
+        {% if p_error %}
+        <div class="alert alert-danger">{{ p_error }}</div>
+        {% endif %}
+
+        <form method="post">
+          <input type="hidden" name="action" value="playfair">
+          <div class="form-group">
+            <label for="p_input_text">Teks (Plaintext)</label>
+            <textarea id="p_input_text" name="p_input_text" rows="3" required>{{ p_input_text }}</textarea>
+          </div>
+          <div class="form-group">
+            <label for="p_key">Kunci (Kata Sandi)</label>
+            <input type="text" id="p_key" name="p_key" value="{{ p_key }}" required>
+            <p style="font-size: 0.8rem; color: var(--secondary-text); margin-top: 5px;">Huruf 'J' akan digabung dengan 'I'.</p>
+          </div>
+          <button type="submit" class="btn-primary mt-4">Enkripsi Data</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-7">
+      {% if p_result_text %}
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title text-success"><i class="bi bi-check-circle-fill"></i> Hasil Enkripsi Playfair</h5>
+        </div>
+        <p class="fs-large monospace text-center" style="word-break: break-all; font-weight: bold; color: var(--success-color);">
+          {{ p_result_text }}
+        </p>
+      </div>
+
+      <div class="row">
+        <div class="col-6">
+          <div class="card" style="height: 100%;">
+            <div class="card-header">
+              <h5 class="card-title text-warning"><i class="bi bi-grid-1x2"></i> Matriks 5x5</h5>
+            </div>
+            <div class="d-flex justify-center align-center">
+              <table class="text-center monospace" style="width: 100%; table-layout: fixed;">
+                <tbody>
+                  {% for row in p_matrix %}
+                  <tr>
+                    {% for cell in row %}
+                    <td style="padding: 10px; font-weight: bold; {% if cell == 'I' %}background-color: var(--secondary-color); color: var(--primary-color); border-radius: 8px;{% endif %}">
+                      {{ cell }}
+                    </td>
+                    {% endfor %}
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+           <div class="card" style="height: 100%; padding-left: 15px; padding-right: 15px;">
+            <div class="card-header">
+              <h5 class="card-title text-primary"><i class="bi bi-braces"></i> Aturan Digraphs</h5>
+            </div>
+            <div style="max-height: 250px; overflow-y: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Blok</th>
+                    <th>Cipher</th>
+                    <th>Aturan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for step in p_steps %}
+                  <tr>
+                    <td><span style="background-color: var(--secondary-color); padding: 4px 8px; border-radius: 6px; font-weight: bold;">{{ step.digraph }}</span></td>
+                    <td><span style="background-color: var(--primary-color); color: white; padding: 4px 8px; border-radius: 6px; font-weight: bold;">{{ step.encrypted }}</span></td>
+                    <td style="font-size: 0.85rem;">{{ step.rule }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Script for Hill Cipher Matrix Input -->
+<script>
+  const prevMatrixKeys = {{ h_matrix_keys_dict|tojson|safe if h_matrix_keys_dict else "{}" }};
+  
+  function updateMatrixInput() {
+    const sizeSelect = document.getElementById('h_matrix_size');
+    if (!sizeSelect) return;
+    const size = parseInt(sizeSelect.value);
+    const container = document.getElementById('matrix_container');
+    container.innerHTML = '';
+    
+    for (let i = 0; i < size; i++) {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.gap = '10px';
+      
+      for (let j = 0; j < size; j++) {
+        const input = document.createElement('input');
+        input.type = 'number';
+        const keyName = `k_${i}_${j}`;
+        input.name = keyName;
+        input.style.width = '70px';
+        input.style.textAlign = 'center';
+        input.required = true;
+        
+        if (prevMatrixKeys[keyName] !== undefined && (Object.keys(prevMatrixKeys).length === size*size)) {
+            input.value = prevMatrixKeys[keyName];
+        } else {
+            input.value = (i === j) ? 1 : 0; 
+        }
+        
+        row.appendChild(input);
+      }
+      container.appendChild(row);
+    }
+  }
+  
+  document.addEventListener("DOMContentLoaded", () => {
+    updateMatrixInput();
+  });
+</script>
+
 {% endblock %}
