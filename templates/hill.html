@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Hill Cipher - Cipher Lab{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-5">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Hill Cipher Encryption</h5>
+      </div>
+      <div class="card-body">
+        {% if error_message %}
+        <div class="alert alert-danger" role="alert">
+          {{ error_message }}
+        </div>
+        {% endif %}
+        <form method="post" id="hillForm">
+          <div class="mb-3">
+            <label for="input_text" class="form-label">Teks (Plaintext)</label>
+            <textarea class="form-control" id="input_text" name="input_text" rows="3" required>{{ input_text }}</textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Ukuran Matriks Kunci</label>
+            <select class="form-select" id="matrix_size" name="matrix_size" onchange="updateMatrixInput()">
+              <option value="2" {% if matrix_size == 2 %}selected{% endif %}>2 x 2</option>
+              <option value="3" {% if matrix_size == 3 %}selected{% endif %}>3 x 3</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Input Matriks Kunci</label>
+            <div id="matrix_container" class="d-flex flex-column gap-2 align-items-center">
+                <!-- Dynamically filled by JS -->
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary w-100">Enkripsi</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-7">
+    {% if result_text %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-success text-white">
+        <h5 class="card-title mb-0">Hasil Enkripsi (Ciphertext)</h5>
+      </div>
+      <div class="card-body">
+        <p class="fs-4 text-break font-monospace">{{ result_text }}</p>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-info text-white">
+        <h5 class="card-title mb-0">Proses Perkalian Matriks (Edukatif)</h5>
+      </div>
+      <div class="card-body">
+        <div class="accordion" id="stepsAccordion">
+          {% for step in steps %}
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}">
+                Blok {{ loop.index }}: {{ step.block }} ➔ {{ step.block_result }}
+              </button>
+            </h2>
+            <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" data-bs-parent="#stepsAccordion">
+              <div class="accordion-body overflow-auto">
+                <div class="math-display">
+                  $$ {{ step.formula }} $$
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Inject initial values for matrix -->
+<script>
+  // Try to retrieve previous matrix keys passed from python, else empty object
+  const prevMatrixKeys = {{ matrix_keys_dict|tojson|safe if matrix_keys_dict else "{}" }};
+  
+  function updateMatrixInput() {
+    const size = parseInt(document.getElementById('matrix_size').value);
+    const container = document.getElementById('matrix_container');
+    container.innerHTML = '';
+    
+    for (let i = 0; i < size; i++) {
+      const row = document.createElement('div');
+      row.className = 'd-flex gap-2';
+      for (let j = 0; j < size; j++) {
+        const input = document.createElement('input');
+        input.type = 'number';
+        const keyName = `k_${i}_${j}`;
+        input.name = keyName;
+        input.className = 'form-control text-center';
+        input.style.width = '70px';
+        input.required = true;
+        
+        // Restore value if available, else identity matrix fallback
+        if (prevMatrixKeys[keyName] !== undefined && (Object.keys(prevMatrixKeys).length === size*size)) {
+            input.value = prevMatrixKeys[keyName];
+        } else {
+            input.value = (i === j) ? 1 : 0; 
+        }
+        
+        row.appendChild(input);
+      }
+      container.appendChild(row);
+    }
+  }
+  
+  // Initial render
+  document.addEventListener("DOMContentLoaded", () => {
+    updateMatrixInput();
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Affine Cipher - Cipher Lab{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-5">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Affine Cipher Encryption</h5>
+      </div>
+      <div class="card-body">
+        {% if error_message %}
+        <div class="alert alert-danger" role="alert">
+          {{ error_message }}
+        </div>
+        {% endif %}
+        <form method="post">
+          <div class="mb-3">
+            <label for="input_text" class="form-label">Teks (Plaintext)</label>
+            <textarea class="form-control" id="input_text" name="input_text" rows="3" required>{{ input_text }}</textarea>
+          </div>
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label for="key_a" class="form-label">Kunci a (Multiplier)</label>
+              <input type="number" class="form-control" id="key_a" name="key_a" value="{{ key_a|default(5) }}" required>
+            </div>
+            <div class="col-6 mb-3">
+              <label for="key_b" class="form-label">Kunci b (Shift)</label>
+              <input type="number" class="form-control" id="key_b" name="key_b" value="{{ key_b|default(8) }}" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Enkripsi</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-7">
+    {% if result_text %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-success text-white">
+        <h5 class="card-title mb-0">Hasil Enkripsi (Ciphertext)</h5>
+      </div>
+      <div class="card-body">
+        <p class="fs-4 text-break font-monospace">{{ result_text }}</p>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-info text-white">
+        <h5 class="card-title mb-0">Proses Perhitungan (Edukatif)</h5>
+      </div>
+      <div class="card-body">
+        <p>Rumus Affine Cipher: \( C = (a \cdot P + b) \pmod{26} \)</p>
+        <p>Kunci yang digunakan: \( a = {{ key_a }}, b = {{ key_b }} \)</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>Karakter</th>
+                <th>Nilai P (0-25)</th>
+                <th>Proses Matematis</th>
+                <th>Nilai C</th>
+                <th>Ciphertext</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for step in steps %}
+                {% if step.is_alpha %}
+                <tr>
+                  <td>{{ step.char }}</td>
+                  <td>{{ step.p }}</td>
+                  <td>\( {{ step.formula }} \)</td>
+                  <td>{{ step.c }}</td>
+                  <td><strong>{{ step.c_char }}</strong></td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td>{{ step.char }}</td>
+                  <td colspan="3" class="text-muted text-center">Bukan huruf (diabaikan)</td>
+                  <td><strong>{{ step.char }}</strong></td>
+                </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
